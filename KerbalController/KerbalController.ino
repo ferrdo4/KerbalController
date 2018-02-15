@@ -1,6 +1,3 @@
-#include <SoftwareSerial.h>
-SoftwareSerial mySerial(15,14); //pin 14 connected to LCD, 15 unconnected
-
 //analog pins
 const int pTHROTTLE = A0; //slide pot
 const int pTX = A1;       //translation x-axis
@@ -10,19 +7,22 @@ const int pRX = A4;       //rotation x-axis
 const int pRY = A5;       //rotation y-axis
 const int pRZ = A6;       //rotation z-axis
 
+//lcd pins
+const int rs = 6, en = 7, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+
 //digital pins
-const int pPOWER = 2;       //power switch
-const int pTB = 3;          //translation joystick button
-const int pRB = 4;          //rotation joystick button
-const int latchPin = 8;     //ST_CP - green
-const int dataPin = 11;     //DS - yellow
-const int clockPin = 12;    //SH_CP - blue
+const int pPOWER = 11;      //power switch
+const int pTB = 12;         //translation joystick button
+const int pRB = 13;         //rotation joystick button
+const int latchPin = 10;    //ST_CP - green
+const int dataPin = 8;      //DS - yellow
+const int clockPin = 9;    //SH_CP - blue
 const int pMODE = 22;       //mode switch (used for debug mode)
 const int pLCDx = 27;       //toggle switch x (used for LCD display modes)
 const int pLCDy = 24;       //toggle switch y (used for LCD display modes)
 const int pLCDz = 29;       //toggle switch z (used for LCD display modes)
-const int pSAS = 26;        //SAS switch
-const int pRCS = 31;        //RCS switch
+const int pSAS = 23;        //SAS switch
+const int pRCS = 25;        //RCS switch
 const int pABORT = 28;      //Abort switch (safety switch, active high)
 const int pARM = 30;        //Arm switch (safety switch, active high)
 const int pSTAGE = 32;      //Stage button
@@ -82,8 +82,7 @@ int ry_value;
 int rz_value;
 
 //variables used for fuel guages
-byte inputBytes[7];
-int vSF, vLF, vOX, vEL, vMP, SF, LF, OX, EL, MP;
+int vSF, vLF, vOX, vEL, vMP;
 
 //debug variable
 bool debug = false;
@@ -102,13 +101,9 @@ boolean Connected = false;
 byte id;
 
 void setup() {
-  
   Serial.begin(38400);  //KSPSerialIO connection
-  mySerial.begin(9600); //LCD connection
-  delay(500);           //wait for LCD boot
-  
-  //write to LCD
-  clearLCD();
+ 
+  initLCD();
   writeLCD("KerbalController");
   jumpToLineTwo();
   writeLCD("booting...");
@@ -121,9 +116,8 @@ void setup() {
 }
 
 void loop() {
-  
   //check mode
-  if(!digitalRead(pMODE)){debug = true;} else {debug = false;}
+  //if(!digitalRead(pMODE)){debug = true;} else {debug = false;}
 
   if(debug){
     //Debug mode does not communicate with KSPSerialIO, but simply displays the button states on the LCD.
@@ -260,11 +254,8 @@ void loop() {
     }
     //end of debug mode
   }
-  else {
-    
-    //KSP mode
-
-    //send and receive data
+  else 
+  {
     get_vessel_data();
     send_control_packet();
   }

@@ -1,28 +1,27 @@
-void clearLCD ()
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+void initLCD()
 {
-  //clear the LCD by writing all spaces
-  jumpToStart();
-  mySerial.write("                ");
-  mySerial.write("                ");
-  jumpToStart();
+  lcd.begin(16, 2);  
 }
 
-void jumpToStart ()
+void clearLCD()
 {
-  //jump to the start of the first line on the LCD
-  mySerial.write(254);
-  mySerial.write(128);
+  lcd.clear();
 }
 
-void jumpToLineTwo ()
+void jumpToStart()
 {
-  //jump to the start of the second line on the LCD
-  mySerial.write(254);
-  mySerial.write(192);
+  lcd.setCursor(0, 0);
 }
 
-void writeLCD (char myText[])
+void jumpToLineTwo()
 {
-  //write text to the LCD
-  mySerial.write(myText); 
+  lcd.setCursor(0, 1);
 }
+
+void writeLCD(char myText[])
+{
+  lcd.print(myText);
+} 
