@@ -1,25 +1,32 @@
 //grab info from KSP here (VData object) and write out results to the Arduino pins
 
 //connect to the KSPSerialIO plugin and receive data
-int get_vessel_data() {
+int get_vessel_data() 
+{
   int returnValue = -1;
   now = millis();
 
-  if (KSPBoardReceiveData()){
+  if (KSPBoardReceiveData())
+  {
     //data is being received
     deadtimeOld = now;
     returnValue = id;
-    switch(id) {
+    switch(id) 
+    {
     case 0: //First packet is a handshake packet
+    {
       Handshake();
       clearLCD();
       writeLCD("KerbalController");
       writeLCD("handshake...");
       break;
+    }
     case 1:
+    {
       //subsequent packets are data from the plugin
       define_vessel_data_display(); //define what to do with the data below
       break;
+    }
     }
     Connected = true;
   }
@@ -132,21 +139,20 @@ byte ControlStatus(byte n)
 }
 
 //get the current SAS Mode. Can be compared to enum values, e.g. if(getSASMode() == SMPrograde){//do stuff}
-byte getSASMode() {
+byte getSASMode() 
+{
   return VData.NavballSASMode & B00001111; // leaves alone the lower 4 bits of; all higher bits set to 0.
 }
 
 //get the current navball mode. Can be compared to enum values, e.g. if (getNavballMode() == NAVBallTARGET){//do stuff}
-byte getNavballMode() {
+byte getNavballMode() 
+{
   return VData.NavballSASMode >> 4; // leaves alone the higher 4 bits of; all lower bits set to 0.
 }
 
 //define what to do with the vessel data here, e.g. turn on LED's, display text on the LCD
-void define_vessel_data_display() {
-  
-  //Fuel LED bar charts - NEED TO USE A SHIFT REGISTER to drive the LED bar charts!
-  // to be implemented
-
+void define_vessel_data_display() 
+{  
   //LCD Display Modes
   // 0 xyz TakeOff Mode:     Suface Velocity / Acceleration (G)
   // 1 Xyz Orbit Mode:       Apoapsis + Time to Apoapsis / Periapsis + Time to Periapsis
@@ -157,176 +163,167 @@ void define_vessel_data_display() {
   // 6 xYZ Landing Mode:     Radar Altitude / Vertical Velocity
   // 7 XYZ Extra Mode:       not implemented (yet)
 
-  if(digitalRead(pLCDx) && digitalRead(pLCDy) && digitalRead(pLCDz)){
-    //MODE 0 : TakeOff Mode
-    //Vsurf
-    clearLCD();
-    char bufferVsurf[17];
+  char line1[17];
+  char line2[17];
+  switch (pLCDState)
+  {
+  case 0:
+  {
     String strVsurf = "Vsurf: ";
     strVsurf += String(VData.Vsurf, 0);
     strVsurf += " m/s";
-    strVsurf.toCharArray(bufferVsurf,17);
-    writeLCD(bufferVsurf);
+    strVsurf.toCharArray(line1,17);
     //Acceleration (G)
-    jumpToLineTwo();
     char bufferGee[17];
     String strGee = "Accel: ";
     strGee += String(VData.G, 0);
     strGee += " G";
-    strGee.toCharArray(bufferGee,17);
-    writeLCD(bufferGee);
+    strGee.toCharArray(line2,17);
+    break;    
   }
-  
-  if(!digitalRead(pLCDx) && digitalRead(pLCDy) && digitalRead(pLCDz)){
-    //MODE 1: Orbit Mode
-    clearLCD();
-    
+  case 1:
+  {
     //Apoapsis
-    char bufferAP[17];
     String strApo = "AP: ";
-    if (VData.AP < 10000 && VData.AP > -10000) {
+    if (VData.AP < 10000 && VData.AP > -10000) 
+    {
       strApo += String(VData.AP,0);
       strApo += "m ";
-    } else if ((VData.AP >= 10000 && VData.AP < 10000000) || (VData.AP <= -10000 && VData.AP > -10000000)) {
+    } 
+    else if ((VData.AP >= 10000 && VData.AP < 10000000) || (VData.AP <= -10000 && VData.AP > -10000000)) 
+    {
       strApo += String((VData.AP / 1000),0);
       strApo += "km ";
-    } else if ((VData.AP >= 10000000 && VData.AP < 10000000000) || (VData.AP <= -10000000 && VData.AP > -10000000000)) {
+    } 
+    else if ((VData.AP >= 10000000 && VData.AP < 10000000000) || (VData.AP <= -10000000 && VData.AP > -10000000000)) 
+    {
       strApo += String((VData.AP / 1000000),0);
       strApo += "Mm ";
-    } else {
+    } 
+    else 
+    {
       strApo += String((VData.AP / 1000000000),0);
       strApo += "Gm ";
     }
     strApo += String(VData.TAp); //time to apoapsis
     strApo += "s";
-    strApo.toCharArray(bufferAP,17);
-    writeLCD(bufferAP);
+    strApo.toCharArray(line1, 17);
     
     //Periapsis
-    char bufferPE[17];
     String strPeri = "PE: ";
-    if (VData.PE < 10000 && VData.PE > -10000) {
+    if (VData.PE < 10000 && VData.PE > -10000) 
+    {
       strPeri += String(VData.PE,0);
       strPeri += "m ";
-    } else if ((VData.PE >= 10000 && VData.PE < 10000000) || (VData.PE <= -10000 && VData.PE > -10000000)) {
+    } 
+    else if ((VData.PE >= 10000 && VData.PE < 10000000) || (VData.PE <= -10000 && VData.PE > -10000000)) 
+    {
       strPeri += String((VData.PE / 1000.0),0);
       strPeri += "km ";
-    } else if ((VData.PE >= 10000000 && VData.PE < 10000000000) || (VData.PE <= -10000000 && VData.PE > -10000000000)) {
+    } 
+    else if ((VData.PE >= 10000000 && VData.PE < 10000000000) || (VData.PE <= -10000000 && VData.PE > -10000000000)) 
+    {
       strPeri += String((VData.PE / 1000000.0),0);
       strPeri += "Mm ";
-    } else {
+    }
+    else 
+    {
       strPeri += String((VData.PE / 1000000000.0),0);
       strPeri += "Gm ";
     }
     strPeri += String(VData.TPe); //time to periapsis
     strPeri += "s";
-    strPeri.toCharArray(bufferPE,17);
-    jumpToLineTwo();
-    writeLCD(bufferPE);
+    strPeri.toCharArray(line2, 17);
+    break;    
   }
-
-  if(digitalRead(pLCDx) && !digitalRead(pLCDy) && digitalRead(pLCDz)){
-    //MODE 2: Maneuver Mode
-    //MNTime
-    clearLCD();
+  case 2:
+  {
+    String l1 = "Tnode: ";
     char t[10];
-    dtostrf(VData.MNTime,8,0,t);
-    writeLCD("Tnode: ");
-    writeLCD(t);
-    writeLCD("s");
+    dtostrf(VData.MNTime, 8, 0, t);
+    l1 += String(t);
+    l1 += "s";
+    l1.toCharArray(line1, 17);
+    
     //MNDeltaV
-    jumpToLineTwo();
-    char bufferMNDeltaV[17];
     String strMNDeltaV = "dV: ";
     strMNDeltaV += String(VData.MNDeltaV, 0);
     strMNDeltaV += " m/s";
-    strMNDeltaV.toCharArray(bufferMNDeltaV,17);
-    writeLCD(bufferMNDeltaV);
+    strMNDeltaV.toCharArray(line2, 17);
+    break;
   }
-
-  if(!digitalRead(pLCDx) && !digitalRead(pLCDy) && digitalRead(pLCDz)){
-    //MODE 3: Rendezvouz Mode
-    //Target Distance
-    clearLCD();
-    char bufferTargetDist[17];
+  case 3:
+  {
     String strTargetDist = "TDist: ";
     strTargetDist += String(VData.TargetDist, 0);
     strTargetDist += " m";
-    strTargetDist.toCharArray(bufferTargetDist,17);
-    writeLCD(bufferTargetDist);
+    strTargetDist.toCharArray(line1, 17);
+
     //Target Velocity
-    jumpToLineTwo();
-    char bufferTargetV[17];
     String strTargetV = "TVel: ";
     strTargetV += String(VData.TargetV, 0);
     strTargetV += " m/s";
-    strTargetV.toCharArray(bufferTargetV,17);
-    writeLCD(bufferTargetV);
+    strTargetV.toCharArray(line2, 17);
+    break;
   }
-
-  if(digitalRead(pLCDx) && digitalRead(pLCDy) && !digitalRead(pLCDz)){
-    //MODE 4: Re-Entry Mode
-    //MaxOverHeat
-    clearLCD();
+  case 4:
+  {
+    String l1 = "Heat: ";
     char t[3];
-    dtostrf(VData.MaxOverHeat,3,0,t);
-    writeLCD("Heat: ");
-    writeLCD(t);
-    writeLCD("%");
+    dtostrf(VData.MaxOverHeat, 3, 0, t);
+    l1 += String(t);
+    l1 += "%";
+    l1.toCharArray(line1, 17);
+    
     //Acceleration (G)
-    jumpToLineTwo();
-    char bufferGee[17];
     String strGee = "Decel: ";
     strGee += String(VData.G, 0);
     strGee += " G";
-    strGee.toCharArray(bufferGee,17);
-    writeLCD(bufferGee);
+    strGee.toCharArray(line2, 17);
+    break;
   }
-
-  if(!digitalRead(pLCDx) && digitalRead(pLCDy) && !digitalRead(pLCDz)){
-    //MODE 5: Flying Mode
-    //Alt
-    clearLCD();
-    char bufferAtl[17];
+  case 5:
+  {
     String strAlt = "Alt:  ";
     strAlt += String(VData.Alt, 0);
     strAlt += " m/s";
-    strAlt.toCharArray(bufferAtl,17);
-    writeLCD(bufferAtl);
+    strAlt.toCharArray(line1, 17);
+
     //Mach Number
-    jumpToLineTwo();
-    char bufferMachNumber[17];
     String strMach = "Mach:";
     strMach += String(VData.G, 0);
-    strMach.toCharArray(bufferMachNumber,17);
-    writeLCD(bufferMachNumber);
+    strMach.toCharArray(line2, 17);
+    break;
   }
-
-  if(digitalRead(pLCDx) && !digitalRead(pLCDy) && !digitalRead(pLCDz)){
-    //MODE 6: Landing Mode
-    //RAlt
-    clearLCD();
-    char bufferRAtl[17];
+  case 6:
+  {
     String strRAlt = "RAlt: ";
     strRAlt += String(VData.RAlt, 0);
     strRAlt += " m/s";
-    strRAlt.toCharArray(bufferRAtl,17);
-    writeLCD(bufferRAtl);
+    strRAlt.toCharArray(line1,17);
+
     //Vertical Velocity
-    jumpToLineTwo();
-    char bufferVVI[17];
     String strVVI = "VVI:  ";
     strVVI += String(VData.VVI, 0);
     strVVI += " m/s";
-    strVVI.toCharArray(bufferVVI,17);
-    writeLCD(bufferVVI);
+    strVVI.toCharArray(line2,17);
+    break;
+  }
+  case 7:
+  default:
+  {
+    String l1 = "KerbalController";
+    l1.toCharArray(line1,17);
+    String l2 = "";
+    l2.toCharArray(line2,17);
+    break;
+  }
   }
 
-  if(!digitalRead(pLCDx) && !digitalRead(pLCDy) && !digitalRead(pLCDz)){
-    //MODE 7: Extra Mode
-    clearLCD();
-    writeLCD("KerbalController");
-  }
+  clearLCD();
+  writeLCD(line1);
+  jumpToLineTwo();
+  writeLCD(line2);
   
   //get in-game status for updating the LED statuses on the controller  
   lights_on = ControlStatus(AGLight);
@@ -364,4 +361,5 @@ void define_vessel_data_display() {
   setNum(19 - vLF, 1);
   setNum(19 - vEL, 2);
   setNum(19 - vMP, 3);
+  updateShiftRegister();  
 }

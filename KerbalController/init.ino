@@ -1,22 +1,11 @@
-void controlsInit() {
+void controlsInit() 
+{
   pinMode(pTHROTTLE, INPUT);
-  pinMode(pTX, INPUT);
-  pinMode(pTY, INPUT);
-  pinMode(pTZ, INPUT);
-  pinMode(pRX, INPUT);
-  pinMode(pRY, INPUT);
-  pinMode(pRZ, INPUT);
-  pinMode(pPOWER, INPUT_PULLUP);
-  pinMode(pTB, INPUT_PULLUP);
-  pinMode(pRB, INPUT_PULLUP);
-  pinMode(pMODE, INPUT_PULLUP);
-  pinMode(pLCDx, INPUT_PULLUP);
-  pinMode(pLCDy, INPUT_PULLUP);
-  pinMode(pLCDz, INPUT_PULLUP);
+  pinMode(pLCD, INPUT_PULLUP);
   pinMode(pSAS, INPUT_PULLUP);
   pinMode(pRCS, INPUT_PULLUP);
-  pinMode(pABORT, INPUT);
-  pinMode(pARM, INPUT);
+  pinMode(pABORT, INPUT_PULLUP);
+  pinMode(pARM, INPUT_PULLUP);
   pinMode(pSTAGE, INPUT_PULLUP);
   pinMode(pSTAGELED, OUTPUT);
   pinMode(pLIGHTS, INPUT_PULLUP);
@@ -42,6 +31,9 @@ void controlsInit() {
   pinMode(latchPin, OUTPUT);
   pinMode(clockPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
+//  pinMode(pPOWER, INPUT_PULLUP);
+//  pinMode(pMODE, INPUT_PULLUP);
+  pLCDState = 0;
 }
 
 void testLEDS(int testdelay){
@@ -79,11 +71,9 @@ void testLEDS(int testdelay){
   delay(testdelay);
   digitalWrite(pACTION4LED,LOW);
   
-  //prepare the shift register
-  digitalWrite(dataPin, LOW);
-  digitalWrite(clockPin, LOW);
-  digitalWrite(latchPin, LOW);
-
   //test led bars
-  test_led_bars();
+  initShiftRegister();
+  testLedBars(5);
+  clearNum();
+  updateShiftRegister();
 }
