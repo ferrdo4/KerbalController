@@ -62,7 +62,6 @@ bool action4_on = false;
 
 //stage LED state
 bool stage_led_on = false;
-bool pressed = false;
 
 //input value variables
 int throttle_value;
@@ -83,6 +82,11 @@ unsigned long now;
 boolean Connected = false;
 byte id;
 
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
+int buttonState;             // the current reading from the input pin
+int lastButtonState = LOW;   // the previous reading from the input pin
+
 void setup() 
 {
   Serial.begin(38400);  //KSPSerialIO connection
@@ -102,16 +106,23 @@ void setup()
 
 void loop() 
 {
-  bool pressedLCD = !digitalRead(pLCD);
-  if(pressedLCD && !pressed)
+  bool LCDPressed = !digitalRead(pLCD);
+  if (LCDPressed != lastButtonState)
   {
-    pLCDState = (pLCDState + 1) % 8;
-    pressed = true;
+    lastDebounceTime = millis();
   }
-  else if (!pressedLCD && pressed)
+  if ((millis() - lastDebounceTime) > debounceDelay)
   {
-    pressed = false;
+    if (LCDPressed != buttonState)
+    {
+      buttonState = LCDPressed;
+      if (buttonState == HIGH)
+      {
+        pLCDState = (pLCDState + 1) % 8;
+      }
+    }
   }
+  lastButtonState = LCDPressed;
   
   if(debug)
   {
