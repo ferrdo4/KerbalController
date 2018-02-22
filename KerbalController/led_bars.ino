@@ -34,26 +34,3 @@ void setNum(int num, int disp)
     leds[j] = (1<<k);
 }
 
-void testLedBars(unsigned int mils) 
-{
-  for (int i = 0; i < 20; i++)
-  {
-    clearNum();
-    setNum(i, 0);
-    setNum(19-i, 1);
-    setNum(i, 2);
-    setNum(19-i, 3);
-    updateShiftRegister();  
-    delay(mils);
-  }
-  for (int i = 0; i < 20; i++)
-  {
-    clearNum();
-    setNum(19-i, 0);
-    setNum(i, 1);
-    setNum(19-i, 2);
-    setNum(i, 3);
-    updateShiftRegister();  
-    delay(mils);
-  }
-}

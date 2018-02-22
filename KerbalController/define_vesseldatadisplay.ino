@@ -152,7 +152,15 @@ byte getNavballMode()
 
 //define what to do with the vessel data here, e.g. turn on LED's, display text on the LCD
 void define_vessel_data_display() 
-{  
+{
+  //Fuel Gauges
+  vSF = ceil(19 * VData.SolidFuel / VData.SolidFuelTot); //percentage of solid fuel remaining
+  vLF = ceil(19 * VData.LiquidFuelS / VData.LiquidFuelTotS); //percentage of liquid fuel remaining in current stage
+  vOX = ceil(19 * VData.OxidizerS / VData.OxidizerTotS); //percentage of oxidized remaining in current stage
+  vEL = ceil(19 * VData.ECharge / VData.EChargeTot); //percentage of electric charge remaining
+  vMP = ceil(19 * VData.MonoProp / VData.MonoPropTot); //percentage of monopropellant remaining
+
+
   //LCD Display Modes
   // 0 xyz TakeOff Mode:     Suface Velocity / Acceleration (G)
   // 1 Xyz Orbit Mode:       Apoapsis + Time to Apoapsis / Periapsis + Time to Periapsis
@@ -314,7 +322,19 @@ void define_vessel_data_display()
   {
     String l1 = "KerbalController";
     l1.toCharArray(line1,17);
-    String l2 = "";
+    char s[2];
+    dtostrf(vSF, 2, 0, s);
+    String l2 = String(s);
+    l2 += "S ";
+    dtostrf(vLF, 2, 0, s);
+    l2 += String(s);    
+    l2 += "L ";
+    dtostrf(vEL, 2, 0, s);
+    l2 += String(s);    
+    l2 += "E ";
+    dtostrf(vMP, 2, 0, s);
+    l2 += String(s);    
+    l2 += "M ";
     l2.toCharArray(line2,17);
     break;
   }
@@ -350,12 +370,6 @@ void define_vessel_data_display()
   digitalWrite(pCHUTESLED, chutes_on);
 
   //Fuel Gauges
-  vSF = 20 * VData.SolidFuel / VData.SolidFuelTot; //percentage of solid fuel remaining
-  vLF = 20 * VData.LiquidFuelS / VData.LiquidFuelTotS; //percentage of liquid fuel remaining in current stage
-  vOX = 20 * VData.OxidizerS / VData.OxidizerTotS; //percentage of oxidized remaining in current stage
-  vEL = 20 * VData.ECharge / VData.EChargeTot; //percentage of electric charge remaining
-  vMP = 20 * VData.MonoProp / VData.MonoPropTot; //percentage of monopropellant remaining
-
   clearNum();
   setNum(19 - vSF, 0);
   setNum(19 - vLF, 1);

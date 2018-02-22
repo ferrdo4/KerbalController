@@ -31,8 +31,6 @@ void controlsInit()
   pinMode(latchPin, OUTPUT);
   pinMode(clockPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
-//  pinMode(pPOWER, INPUT_PULLUP);
-//  pinMode(pMODE, INPUT_PULLUP);
   pLCDState = 0;
 }
 
@@ -70,10 +68,4 @@ void testLEDS(int testdelay){
   digitalWrite(pACTION4LED,HIGH);
   delay(testdelay);
   digitalWrite(pACTION4LED,LOW);
-  
-  //test led bars
-  initShiftRegister();
-  testLedBars(5);
-  clearNum();
-  updateShiftRegister();
 }

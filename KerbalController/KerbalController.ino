@@ -1,4 +1,8 @@
+//debug
 bool debug = false;
+long debugTime, debugTimeOld;
+const int barsRefresh = 80;
+int barVal;
 
 //analog pins
 const int pTHROTTLE = A0; //slide pot
@@ -82,8 +86,9 @@ unsigned long now;
 boolean Connected = false;
 byte id;
 
+//LCD button
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
+const unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
 int buttonState;             // the current reading from the input pin
 int lastButtonState = LOW;   // the previous reading from the input pin
 
@@ -99,13 +104,17 @@ void setup()
 
   //Initialize
   controlsInit();   //set all pin modes
-  testLEDS(50);     //blink every LED once to test (with a delay of 10 ms)
   InitTxPackets();  //initialize the serial communication
-  (digitalRead(pABORT) && digitalRead(pARM))?debug = true:debug = false;
+  if (digitalRead(pABORT) && digitalRead(pARM))
+  {
+    debug = true;
+    barVal = 0;
+  }
 }
 
 void loop() 
 {
+  // debounce issue
   bool LCDPressed = !digitalRead(pLCD);
   if (LCDPressed != lastButtonState)
   {
@@ -137,47 +146,60 @@ void loop()
 
 void doDebug()
 {
-    clearLCD();
-    
-    //toggle switches
-    (digitalRead(pABORT))?writeLCD("A"):writeLCD("a"); //note abort switch is active high
-    (digitalRead(pARM))?writeLCD("A"):writeLCD("a"); //note arm switch is active high
-    (!digitalRead(pSAS))?writeLCD("S"):writeLCD("s");
-    (!digitalRead(pRCS))?writeLCD("R"):writeLCD("r");
-    (digitalRead(pSTAGE))?writeLCD("S"):writeLCD("s");
-    digitalWrite(pSTAGELED, digitalRead(pSTAGE));
-    (digitalRead(pSOLAR))?writeLCD("S"):writeLCD("s");
-    digitalWrite(pSOLARLED, digitalRead(pSOLAR));
-    (digitalRead(pLIGHTS))?writeLCD("L"):writeLCD("l");
-    digitalWrite(pLIGHTSLED, digitalRead(pLIGHTS));   
-    (digitalRead(pLADDER))?writeLCD("L"):writeLCD("l");
-    digitalWrite(pLADDERLED, digitalRead(pLADDER));
-    (digitalRead(pBRAKES))?writeLCD("B"):writeLCD("b");
-    digitalWrite(pBRAKESLED, digitalRead(pBRAKES));
-    (digitalRead(pCHUTES))?writeLCD("C"):writeLCD("c");
-    digitalWrite(pCHUTESLED, digitalRead(pCHUTES));
-    (digitalRead(pGEARS))?writeLCD("G"):writeLCD("g");
-    digitalWrite(pGEARSLED, digitalRead(pGEARS));
-    (digitalRead(pACTION1))?writeLCD("1"):writeLCD("a");
-    digitalWrite(pACTION1LED, digitalRead(pACTION1));
-    (digitalRead(pACTION2))?writeLCD("2"):writeLCD("a");
-    digitalWrite(pACTION2LED, digitalRead(pACTION2));
-    (digitalRead(pACTION3))?writeLCD("3"):writeLCD("a");
-    digitalWrite(pACTION3LED, digitalRead(pACTION3));
-    (digitalRead(pACTION4))?writeLCD("4"):writeLCD("a");
-    digitalWrite(pACTION4LED, digitalRead(pACTION4));
-    char ch[1];
-    sprintf(ch, "%i", pLCDState);
-    writeLCD(ch);
+  String l1 = "";
+  (digitalRead(pABORT))?l1+="A":l1+="a"; //note abort switch is active high
+  (digitalRead(pARM))?l1+="A":l1+="a"; //note arm switch is active high
+  (!digitalRead(pSAS))?l1+="S":l1+="s";
+  (!digitalRead(pRCS))?l1+="R":l1+="r";
+  (digitalRead(pSTAGE))?l1+="S":l1+="s";
+  digitalWrite(pSTAGELED, digitalRead(pSTAGE));
+  (digitalRead(pSOLAR))?l1+="S":l1+="s";
+  digitalWrite(pSOLARLED, digitalRead(pSOLAR));
+  (digitalRead(pLIGHTS))?l1+="L":l1+="l";
+  digitalWrite(pLIGHTSLED, digitalRead(pLIGHTS));   
+  (digitalRead(pLADDER))?l1+="L":l1+="l";
+  digitalWrite(pLADDERLED, digitalRead(pLADDER));
+  (digitalRead(pBRAKES))?l1+="B":l1+="b";
+  digitalWrite(pBRAKESLED, digitalRead(pBRAKES));
+  (digitalRead(pCHUTES))?l1+="C":l1+="c";
+  digitalWrite(pCHUTESLED, digitalRead(pCHUTES));
+  (digitalRead(pGEARS))?l1+="G":l1+="g";
+  digitalWrite(pGEARSLED, digitalRead(pGEARS));
+  (digitalRead(pACTION1))?l1+="1":l1+="a";
+  digitalWrite(pACTION1LED, digitalRead(pACTION1));
+  (digitalRead(pACTION2))?l1+="2":l1+="a";
+  digitalWrite(pACTION2LED, digitalRead(pACTION2));
+  (digitalRead(pACTION3))?l1+="3":l1+="a";
+  digitalWrite(pACTION3LED, digitalRead(pACTION3));
+  (digitalRead(pACTION4))?l1+="4":l1+="a";
+  digitalWrite(pACTION4LED, digitalRead(pACTION4));
+  char cLCDState[1];
+  sprintf(cLCDState, "%i", pLCDState);
+  l1+=String(cLCDState);
+  char line[17];
+  l1.toCharArray(line, 17);
+  throttle_value = analogRead(pTHROTTLE);
+  char throttle_char[5];
+  itoa(throttle_value, throttle_char, 10);
 
-    throttle_value = analogRead(pTHROTTLE);
-    char throttle_char[5];
-    itoa(throttle_value, throttle_char, 10);
+  now = millis();
+  debugTime = now - debugTimeOld;
+  if (debugTime > barsRefresh) 
+  {
+    clearLCD();  
+    writeLCD(line);
     jumpToLineTwo();
     writeLCD(throttle_char);
-    writeLCD(" ");
 
-    testLedBars(10);
-    //end of debug mode
+    debugTimeOld = now;
+    clearNum();
+    setNum(barVal, 0);
+    setNum(19 - barVal, 1);
+    setNum(barVal, 2);
+    setNum(19 - barVal, 3);
+    updateShiftRegister();
+
+    barVal = (barVal + 1) % 19;
+  }
 }
 
