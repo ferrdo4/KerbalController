@@ -31,6 +31,9 @@ void controlsInit()
   pinMode(latchPin, OUTPUT);
   pinMode(clockPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
+  pinMode(latchPinS, OUTPUT);
+  pinMode(clockPinS, OUTPUT);
+  pinMode(dataPinS, OUTPUT);
   pLCDState = 0;
 }
 

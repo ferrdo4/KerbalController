@@ -10,11 +10,17 @@ const int pTHROTTLE = A0; //slide pot
 //lcd pins
 const int rs = 6, en = 7, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 
-//digital pins
-const int latchPin = 10;    //ST_CP - green
+//digital pins long
 const int dataPin = 8;      //DS - yellow
-const int clockPin = 9;     //SH_CP - blue
+const int clockPin = 9;     //SH_CP - orange
+const int latchPin = 10;    //ST_CP - red
 
+//digital pins short
+const int dataPinS = 11;      //DS - brown
+const int clockPinS = 12;     //SH_CP - orange
+const int latchPinS = 13;    //ST_CP - red
+
+//digios
 const int pSASLED = 22;     //SAS switch LED
 const int pSAS = 23;        //SAS switch
 const int pRCSLED = 24;     //RCS switch LED
@@ -197,6 +203,8 @@ void doDebug()
     setNum(19 - barVal, 1);
     setNum(barVal, 2);
     setNum(19 - barVal, 3);
+    setValues(barVal % 10, barVal % 10, barVal % 10, barVal % 10, barVal % 10);
+    
     updateShiftRegister();
 
     barVal = (barVal + 1) % 19;
