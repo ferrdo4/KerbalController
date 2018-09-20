@@ -105,14 +105,14 @@ void define_control_packet()
     //here we define what controls to send when which pins are manipulated
     
     //toggle switches
-    (!digitalRead(pSAS))?MainControls(SAS, true):MainControls(SAS, false);
-    (!digitalRead(pRCS))?MainControls(RCS, true):MainControls(RCS, false);
-    (digitalRead(pABORT))?MainControls(ABORT, true):MainControls(ABORT, false);
+    (digitalRead(pSAS))?MainControls(SAS, true):MainControls(SAS, false);
+    (digitalRead(pRCS))?MainControls(RCS, true):MainControls(RCS, false);
+    (!digitalRead(pABORT))?MainControls(ABORT, true):MainControls(ABORT, false);
   
     //momentary stage button
-    (!digitalRead(pSTAGE) && digitalRead(pARM))?MainControls(STAGE, true):MainControls(STAGE, false);
+    (!digitalRead(pSTAGE) && !digitalRead(pARM))?MainControls(STAGE, true):MainControls(STAGE, false);
   
-    if(digitalRead(pARM))
+    if(!digitalRead(pARM))
     {
       now = millis();
       stageLedTime = now - stageLedTimeOld;
@@ -140,11 +140,25 @@ void define_control_packet()
     (digitalRead(pSOLAR))?ControlGroups(6, true):ControlGroups(6, false);
     (digitalRead(pCHUTES))?ControlGroups(7, true):ControlGroups(7, false);
 
+    //update button LEDs 
+    digitalWrite(pRCSLED, digitalRead(pRCS)); 
+    digitalWrite(pSASLED, digitalRead(pSAS));
+    digitalWrite(pLIGHTSLED, digitalRead(pLIGHTS)); 
+    digitalWrite(pGEARSLED, digitalRead(pGEARS));
+    digitalWrite(pBRAKESLED, digitalRead(pBRAKES));
+    digitalWrite(pACTION1LED, digitalRead(pACTION1));
+    digitalWrite(pACTION2LED, digitalRead(pACTION2));
+    digitalWrite(pACTION3LED, digitalRead(pACTION3));
+    digitalWrite(pACTION4LED, digitalRead(pACTION4));
+    digitalWrite(pLADDERLED, digitalRead(pLADDER));
+    digitalWrite(pSOLARLED, digitalRead(pSOLAR));
+    digitalWrite(pCHUTESLED, digitalRead(pCHUTES));
+
+
     //throttle
-    CPacket.Throttle = constrain(map(analogRead(pTHROTTLE),30,990,0,1023),0,1000);
+    CPacket.Throttle = 1000 - constrain(map(analogRead(pTHROTTLE),30,990,0,1023),0,1000);
 
     //send the control packet to the KSPSerialIO plugin
     KSPBoardSendData(details(CPacket)); 
   }
 }
-

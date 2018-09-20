@@ -1,3 +1,6 @@
+#ifndef BARS_H
+#define BARS_H
+
 //digital pins long
 const int dataPin = 8;      //DS - yellow
 const int clockPin = 9;     //SH_CP - orange
@@ -143,3 +146,5 @@ private:
     digitalWrite(latchPinS, HIGH);     
   }
 };
+
+#endif

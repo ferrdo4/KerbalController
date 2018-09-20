@@ -1,4 +1,10 @@
+#ifndef LCD_H
+#define LCD_H
+
+
 #include <LiquidCrystal.h>
+#include "vals.h"
+
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 void initLCD()
@@ -25,3 +31,5 @@ void writeLCD(char myText[])
 {
   lcd.print(myText);
 } 
+
+#endif

@@ -154,13 +154,13 @@ byte getNavballMode()
 void define_vessel_data_display() 
 {
   //Fuel Gauges
-  vSF = ceil(9 * VData.SolidFuel / VData.SolidFuelTot); //percentage of solid fuel remaining
-  vLF = ceil(9 * VData.LiquidFuelS / VData.LiquidFuelTotS); //percentage of liquid fuel remaining in current stage
-  vOX = ceil(9 * VData.OxidizerS / VData.OxidizerTotS); //percentage of oxidized remaining in current stage
-  vEL = ceil(9 * VData.ECharge / VData.EChargeTot); //percentage of electric charge remaining
-  vMP = ceil(9 * VData.MonoProp / VData.MonoPropTot); //percentage of monopropellant remaining
-  vA = ceil(19 * VData.Density / 100);
-  vG = ceil(19 * VData.G / 100);
+  vSF = 10 - ceil(10 * VData.SolidFuel / VData.SolidFuelTot); //percentage of solid fuel remaining
+  vLF = 10 - ceil(10 * VData.LiquidFuelS / VData.LiquidFuelTotS); //percentage of liquid fuel remaining in current stage
+  vOX = 10 - ceil(10 * VData.OxidizerS / VData.OxidizerTotS); //percentage of oxidized remaining in current stage
+  vEL = 10 - ceil(10 * VData.ECharge / VData.EChargeTot); //percentage of electric charge remaining
+  vMP = 10 - ceil(10 * VData.MonoProp / VData.MonoPropTot); //percentage of monopropellant remaining
+  vA = ceil(VData.Density * 20);
+  vG = 15 - ceil(VData.G);
 
   char line1[17];
   char line2[17];
@@ -303,7 +303,7 @@ void define_vessel_data_display()
 
     //Vertical Velocity
     String strVVI = "VVI:  ";
-    strVVI += String(VData.VVI, 0);
+    strVVI += String(float(vA), 0);
     strVVI += " m/s";
     strVVI.toCharArray(line2,17);
     break;
@@ -337,6 +337,8 @@ void define_vessel_data_display()
   writeLCD(line2);
   
   //get in-game status for updating the LED statuses on the controller  
+  rcs_on = ControlStatus(AGRCS);
+  sas_on = ControlStatus(AGSAS);
   lights_on = ControlStatus(AGLight);
   gears_on = ControlStatus(AGGears);
   brakes_on = ControlStatus(AGBrakes);
@@ -348,26 +350,11 @@ void define_vessel_data_display()
   solar_on = ControlStatus(AGCustom06);
   chutes_on = ControlStatus(AGCustom07);
 
-  //update button LEDs based on in-game status
-  digitalWrite(pLIGHTSLED, lights_on); 
-  digitalWrite(pGEARSLED, gears_on);
-  digitalWrite(pBRAKESLED, brakes_on);
-  digitalWrite(pACTION1LED, action1_on);
-  digitalWrite(pACTION2LED, action2_on);
-  digitalWrite(pACTION3LED, action3_on);
-  digitalWrite(pACTION4LED, action4_on);
-  digitalWrite(pLADDERLED, ladder_on);
-  digitalWrite(pSOLARLED, solar_on);
-  digitalWrite(pCHUTESLED, chutes_on);
-
   //Fuel Gauges
-  barsS.setNum(0, vSF);
-  barsS.setNum(1, vLF);
-  barsS.setNum(2, vEL);
-  barsS.setNum(3, vMP);
-  barsS.setNum(4, vOX);
+  barsS.setNums(vSF, vLF, vOX, vEL, vMP);
+  barsS.up();
 
   //G+A
-  bars.setNum(0, vA);
-  bars.setNum(1, vG);
+  bars.setNums(5 , vG);
+  bars.up();
 }
