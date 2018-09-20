@@ -1,24 +1,18 @@
+#include "bars.h"
+
 //debug
 bool debug = false;
 long debugTime, debugTimeOld;
 const int barsRefresh = 80;
 int barVal;
+bar5 barsS;
+bar2 bars;
 
 //analog pins
 const int pTHROTTLE = A0; //slide pot
 
 //lcd pins
 const int rs = 6, en = 7, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
-
-//digital pins long
-const int dataPin = 8;      //DS - yellow
-const int clockPin = 9;     //SH_CP - orange
-const int latchPin = 10;    //ST_CP - red
-
-//digital pins short
-const int dataPinS = 11;      //DS - brown
-const int clockPinS = 12;     //SH_CP - orange
-const int latchPinS = 13;    //ST_CP - red
 
 //digios
 const int pSASLED = 22;     //SAS switch LED
@@ -77,7 +71,7 @@ bool stage_led_on = false;
 int throttle_value;
 
 //variables used for fuel guages
-int vSF, vLF, vOX, vEL, vMP;
+int vSF, vLF, vOX, vEL, vMP, vA, vG;
 
 //timing
 const int IDLETIMER = 20000;        //if no message received from KSP for more than 20s, go idle (default 2000)
@@ -156,7 +150,9 @@ void doDebug()
   (digitalRead(pABORT))?l1+="A":l1+="a"; //note abort switch is active high
   (digitalRead(pARM))?l1+="A":l1+="a"; //note arm switch is active high
   (!digitalRead(pSAS))?l1+="S":l1+="s";
+  digitalWrite(pSASLED, digitalRead(pSAS));
   (!digitalRead(pRCS))?l1+="R":l1+="r";
+  digitalWrite(pRCSLED, digitalRead(pRCS));
   (digitalRead(pSTAGE))?l1+="S":l1+="s";
   digitalWrite(pSTAGELED, digitalRead(pSTAGE));
   (digitalRead(pSOLAR))?l1+="S":l1+="s";
@@ -190,24 +186,21 @@ void doDebug()
 
   now = millis();
   debugTime = now - debugTimeOld;
+
   if (debugTime > barsRefresh) 
   {
     clearLCD();  
     writeLCD(line);
     jumpToLineTwo();
     writeLCD(throttle_char);
-
     debugTimeOld = now;
-    clearNum();
-    setNum(barVal, 0);
-    setNum(19 - barVal, 1);
-    setNum(barVal, 2);
-    setNum(19 - barVal, 3);
-    setValues(barVal % 10, barVal % 10, barVal % 10, barVal % 10, barVal % 10);
-    
-    updateShiftRegister();
 
-    barVal = (barVal + 1) % 19;
+    bars.setNums(barVal, barVal+10);
+    bars.up();
+
+    barsS.setNums(barVal, barVal+2, barVal+4, barVal+6, barVal+8);
+    barsS.up();
+    
+    ++barVal;
   }
 }
-

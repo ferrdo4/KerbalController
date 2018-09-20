@@ -154,22 +154,13 @@ byte getNavballMode()
 void define_vessel_data_display() 
 {
   //Fuel Gauges
-  vSF = ceil(19 * VData.SolidFuel / VData.SolidFuelTot); //percentage of solid fuel remaining
-  vLF = ceil(19 * VData.LiquidFuelS / VData.LiquidFuelTotS); //percentage of liquid fuel remaining in current stage
-  vOX = ceil(19 * VData.OxidizerS / VData.OxidizerTotS); //percentage of oxidized remaining in current stage
-  vEL = ceil(19 * VData.ECharge / VData.EChargeTot); //percentage of electric charge remaining
-  vMP = ceil(19 * VData.MonoProp / VData.MonoPropTot); //percentage of monopropellant remaining
-
-
-  //LCD Display Modes
-  // 0 xyz TakeOff Mode:     Suface Velocity / Acceleration (G)
-  // 1 Xyz Orbit Mode:       Apoapsis + Time to Apoapsis / Periapsis + Time to Periapsis
-  // 2 xYz Maneuver Mode:    Time to next maneuver node / Remaining Delta-V for next maneuver node
-  // 3 XYz Rendezvouz Mode:  Distance to target / Velocity relative to target
-  // 4 xyZ Re-Entry Mode:    Percentage overheating (max) /   Deceleration (G)
-  // 5 XyZ Flying Mode:      Altitude / Mach number
-  // 6 xYZ Landing Mode:     Radar Altitude / Vertical Velocity
-  // 7 XYZ Extra Mode:       not implemented (yet)
+  vSF = ceil(9 * VData.SolidFuel / VData.SolidFuelTot); //percentage of solid fuel remaining
+  vLF = ceil(9 * VData.LiquidFuelS / VData.LiquidFuelTotS); //percentage of liquid fuel remaining in current stage
+  vOX = ceil(9 * VData.OxidizerS / VData.OxidizerTotS); //percentage of oxidized remaining in current stage
+  vEL = ceil(9 * VData.ECharge / VData.EChargeTot); //percentage of electric charge remaining
+  vMP = ceil(9 * VData.MonoProp / VData.MonoPropTot); //percentage of monopropellant remaining
+  vA = ceil(19 * VData.Density / 100);
+  vG = ceil(19 * VData.G / 100);
 
   char line1[17];
   char line2[17];
@@ -370,10 +361,13 @@ void define_vessel_data_display()
   digitalWrite(pCHUTESLED, chutes_on);
 
   //Fuel Gauges
-  clearNum();
-  setNum(19 - vSF, 0);
-  setNum(19 - vLF, 1);
-  setNum(19 - vEL, 2);
-  setNum(19 - vMP, 3);
-  updateShiftRegister();  
+  barsS.setNum(0, vSF);
+  barsS.setNum(1, vLF);
+  barsS.setNum(2, vEL);
+  barsS.setNum(3, vMP);
+  barsS.setNum(4, vOX);
+
+  //G+A
+  bars.setNum(0, vA);
+  bars.setNum(1, vG);
 }
