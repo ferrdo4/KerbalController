@@ -1,6 +1,9 @@
 #ifndef BARS_H
 #define BARS_H
 
+#include "init.h"
+#include "lcd.h"
+
 //digital pins long
 const int dataPin = 8;      //DS - yellow
 const int clockPin = 9;     //SH_CP - orange
@@ -46,13 +49,19 @@ struct bar2
 
   void up()
   {
+    long pv1 = (long)ceil(pow(2, bars[1].val));
+    long pv2 = (long)ceil(pow(2, bars[0].val));
+
+    char pv1_char[16];
+    char pv2_char[16];
+   
     clearData();   
-    for (int i = 0; i < 2; ++i)
-    {
-      int j = (bars[i].val + 24 * i) / 8;
-      int k = (bars[i].val + 24 * i) % 8;
-      data[j] = (1<<k);    
-    }
+    data [0] = pv1 >> 16;
+    data [1] = pv1 >> 8;
+    data [2] = pv1;  
+    data [3] = pv2 >> 16;
+    data [4] = pv2 >> 8;
+    data [5] = pv2;
     writeBus();
   }
 
@@ -66,7 +75,7 @@ private:
   void writeBus()
   {
     digitalWrite(latchPin, LOW);
-    for(int i = 5; i >= 0; --i)
+    for(int i = 0; i < 6; ++i)
       shiftOut(dataPin, clockPin, MSBFIRST, data[i]);
     digitalWrite(latchPin, HIGH);
   }
@@ -110,11 +119,11 @@ struct bar5
 
   void up()
   {
-    int pv1 = 0.1+pow(2, bars[0].val);
-    int pv2 = 0.1+pow(2, bars[1].val);
-    int pv3 = 0.1+pow(2, bars[2].val);
-    int pv4 = 0.1+pow(2, bars[3].val);
-    int pv5 = 0.1+pow(2, bars[4].val);
+    int pv1 = ceil(pow(2, bars[0].val));
+    int pv2 = ceil(pow(2, bars[1].val));
+    int pv3 = ceil(pow(2, bars[2].val));
+    int pv4 = ceil(pow(2, bars[3].val));
+    int pv5 = ceil(pow(2, bars[4].val));
 
     clearData();    
     data[0] = pv5 >> 8;

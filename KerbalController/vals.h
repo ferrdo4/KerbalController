@@ -1,13 +1,13 @@
 #ifndef VALS_H
 #define VALS_H
 
+#include "bars.h"
+
 //debug
 bool debug = false;
 long debugTime, debugTimeOld;
-const int barsRefresh = 80;
+int barsRefresh = 80;
 int barVal;
-bar5 barsS;
-bar2 bars;
 
 //analog pins
 const int pTHROTTLE = A0; //slide pot

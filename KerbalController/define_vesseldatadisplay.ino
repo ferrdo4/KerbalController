@@ -159,7 +159,8 @@ void define_vessel_data_display()
   vOX = 10 - ceil(10 * VData.OxidizerS / VData.OxidizerTotS); //percentage of oxidized remaining in current stage
   vEL = 10 - ceil(10 * VData.ECharge / VData.EChargeTot); //percentage of electric charge remaining
   vMP = 10 - ceil(10 * VData.MonoProp / VData.MonoPropTot); //percentage of monopropellant remaining
-  vA = ceil(VData.Density * 20);
+  vA = 20 - ceil(VData.Density * 16);
+  vA = (vA == 0) ? 19: vA;
   vG = 15 - ceil(VData.G);
 
   char line1[17];
@@ -355,6 +356,6 @@ void define_vessel_data_display()
   barsS.up();
 
   //G+A
-  bars.setNums(5 , vG);
+  bars.setNums(vA , vG);
   bars.up();
 }
