@@ -159,8 +159,8 @@ void define_vessel_data_display()
   vOX = 10 - ceil(10 * VData.OxidizerS / VData.OxidizerTotS); //percentage of oxidized remaining in current stage
   vEL = 10 - ceil(10 * VData.ECharge / VData.EChargeTot); //percentage of electric charge remaining
   vMP = 10 - ceil(10 * VData.MonoProp / VData.MonoPropTot); //percentage of monopropellant remaining
-  vA = 20 - ceil(VData.Density * 16);
-  vA = (vA == 0) ? 19: vA;
+  vA = 20 - 10*log10(1 + 99*(VData.Density / 1.2));
+  //vA = (vA < 20 && vA > 0) ? vA : 19;
   vG = 15 - ceil(VData.G);
 
   char line1[17];
@@ -173,12 +173,11 @@ void define_vessel_data_display()
     strVsurf += String(VData.Vsurf, 0);
     strVsurf += " m/s";
     strVsurf.toCharArray(line1,17);
-    //Acceleration (G)
-    char bufferGee[17];
-    String strGee = "Accel: ";
-    strGee += String(VData.G, 0);
-    strGee += " G";
-    strGee.toCharArray(line2,17);
+    //Alr
+    String strAlt = "Vorb:  ";
+    strAlt += String(VData.VOrbit, 0);
+    strAlt += " m/s";
+    strAlt.toCharArray(line2, 17);
     break;    
   }
   case 1:
@@ -238,6 +237,48 @@ void define_vessel_data_display()
   }
   case 2:
   {
+    String strAlt = "Alt:  ";
+    strAlt += String(VData.Alt, 0);
+    strAlt += " m/s";
+    strAlt.toCharArray(line1, 17);
+    
+    String strRAlt = "RAlt: ";
+    strRAlt += String(VData.RAlt, 0);
+    strRAlt += " m/s";
+    strRAlt.toCharArray(line2,17);
+    break;
+  }
+  case 3:
+  {
+    String l1 = "Heat: ";
+    char t[3];
+    dtostrf(VData.MaxOverHeat, 3, 0, t);
+    l1 += String(t);
+    l1 += "%";
+    l1.toCharArray(line1, 17);
+
+    String strVVI = "VVI:  ";
+    strVVI += String(VData.VVI, 0);
+    strVVI += " m/s";
+    strVVI.toCharArray(line2,17);
+    break;
+  }
+  case 4:
+  {
+    String strTargetDist = "TDist: ";
+    strTargetDist += String(VData.TargetDist, 0);
+    strTargetDist += " m";
+    strTargetDist.toCharArray(line1, 17);
+
+    //Target Velocity
+    String strTargetV = "TVel: ";
+    strTargetV += String(VData.TargetV, 0);
+    strTargetV += " m/s";
+    strTargetV.toCharArray(line2, 17);
+    break;
+  }
+  case 5:
+  {
     String l1 = "Tnode: ";
     char t[10];
     dtostrf(VData.MNTime, 8, 0, t);
@@ -252,82 +293,29 @@ void define_vessel_data_display()
     strMNDeltaV.toCharArray(line2, 17);
     break;
   }
-  case 3:
-  {
-    String strTargetDist = "TDist: ";
-    strTargetDist += String(VData.TargetDist, 0);
-    strTargetDist += " m";
-    strTargetDist.toCharArray(line1, 17);
-
-    //Target Velocity
-    String strTargetV = "TVel: ";
-    strTargetV += String(VData.TargetV, 0);
-    strTargetV += " m/s";
-    strTargetV.toCharArray(line2, 17);
-    break;
-  }
-  case 4:
-  {
-    String l1 = "Heat: ";
-    char t[3];
-    dtostrf(VData.MaxOverHeat, 3, 0, t);
-    l1 += String(t);
-    l1 += "%";
-    l1.toCharArray(line1, 17);
-    
-    //Acceleration (G)
-    String strGee = "Decel: ";
-    strGee += String(VData.G, 0);
-    strGee += " G";
-    strGee.toCharArray(line2, 17);
-    break;
-  }
-  case 5:
-  {
-    String strAlt = "Alt:  ";
-    strAlt += String(VData.Alt, 0);
-    strAlt += " m/s";
-    strAlt.toCharArray(line1, 17);
-
-    //Mach Number
-    String strMach = "Mach:";
-    strMach += String(VData.G, 0);
-    strMach.toCharArray(line2, 17);
-    break;
-  }
   case 6:
   {
-    String strRAlt = "RAlt: ";
-    strRAlt += String(VData.RAlt, 0);
-    strRAlt += " m/s";
-    strRAlt.toCharArray(line1,17);
-
-    //Vertical Velocity
-    String strVVI = "VVI:  ";
-    strVVI += String(float(vA), 0);
-    strVVI += " m/s";
-    strVVI.toCharArray(line2,17);
-    break;
-  }
+    String strTStage = "inc:";
+    strTStage += String(VData.inc, 3);
+    strTStage.toCharArray(line1, 17);
+    
+    //Mach Number
+    String strStage = "ecc:";
+    strStage += String(VData.e, 3);
+    strStage.toCharArray(line2, 17);
+    break;  }
   case 7:
   default:
   {
-    String l1 = "KerbalController";
-    l1.toCharArray(line1,17);
-    char s[2];
-    dtostrf(vSF, 2, 0, s);
-    String l2 = String(s);
-    l2 += "S ";
-    dtostrf(vLF, 2, 0, s);
-    l2 += String(s);    
-    l2 += "L ";
-    dtostrf(vEL, 2, 0, s);
-    l2 += String(s);    
-    l2 += "E ";
-    dtostrf(vMP, 2, 0, s);
-    l2 += String(s);    
-    l2 += "M ";
-    l2.toCharArray(line2,17);
+    String strLat = "Lat:  ";
+    strLat += String(abs(VData.Lat), 2);
+    strLat += (VData.Lat > 0)? " N" : " S";
+    strLat.toCharArray(line1,17);
+
+    String strLon = "Lon:  ";
+    strLon += String(abs(VData.Lon), 2);
+    strLon += (VData.Lon > 0)? " E" : " W";
+    strLon.toCharArray(line2,17);       
     break;
   }
   }
