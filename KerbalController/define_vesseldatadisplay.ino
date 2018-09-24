@@ -159,8 +159,8 @@ void define_vessel_data_display()
   vOX = 10 - ceil(10 * VData.OxidizerS / VData.OxidizerTotS); //percentage of oxidized remaining in current stage
   vEL = 10 - ceil(10 * VData.ECharge / VData.EChargeTot); //percentage of electric charge remaining
   vMP = 10 - ceil(10 * VData.MonoProp / VData.MonoPropTot); //percentage of monopropellant remaining
-  vA = 20 - 10*log10(1 + 99*(VData.Density / 1.2));
-  //vA = (vA < 20 && vA > 0) ? vA : 19;
+  vA = 20 - 10*log10(1 + 99*(VData.Density / 6));
+  vA = (vA < 20) ? vA : 19;
   vG = 15 - ceil(VData.G);
 
   char line1[17];
@@ -325,20 +325,6 @@ void define_vessel_data_display()
   jumpToLineTwo();
   writeLCD(line2);
   
-  //get in-game status for updating the LED statuses on the controller  
-  rcs_on = ControlStatus(AGRCS);
-  sas_on = ControlStatus(AGSAS);
-  lights_on = ControlStatus(AGLight);
-  gears_on = ControlStatus(AGGears);
-  brakes_on = ControlStatus(AGBrakes);
-  action1_on = ControlStatus(AGCustom01);
-  action2_on = ControlStatus(AGCustom02);
-  action3_on = ControlStatus(AGCustom03);
-  action4_on = ControlStatus(AGCustom04);
-  ladder_on = ControlStatus(AGCustom05);
-  solar_on = ControlStatus(AGCustom06);
-  chutes_on = ControlStatus(AGCustom07);
-
   //Fuel Gauges
   barsS.setNums(vSF, vLF, vOX, vEL, vMP);
   barsS.up();

@@ -136,9 +136,9 @@ void define_control_packet()
     (digitalRead(pACTION2))?ControlGroups(2, true):ControlGroups(2, false);
     (digitalRead(pACTION3))?ControlGroups(3, true):ControlGroups(3, false);
     (digitalRead(pACTION4))?ControlGroups(4, true):ControlGroups(4, false);
-    (digitalRead(pLADDER))?ControlGroups(5, true):ControlGroups(5, false);
-    (digitalRead(pSOLAR))?ControlGroups(6, true):ControlGroups(6, false);
-    (digitalRead(pCHUTES))?ControlGroups(7, true):ControlGroups(7, false);
+    (digitalRead(pSOLAR))?ControlGroups(5, true):ControlGroups(5, false);
+    (digitalRead(pCHUTES))?ControlGroups(6, true):ControlGroups(6, false);
+    (digitalRead(pLADDER))?ControlGroups(7, true):ControlGroups(7, false);
 
     //update button LEDs 
     digitalWrite(pRCSLED, digitalRead(pRCS)); 
@@ -156,8 +156,11 @@ void define_control_packet()
 
 
     //throttle
-    CPacket.Throttle = 1000 - constrain(map(analogRead(pTHROTTLE),30,990,0,1023),0,1000);
-
+    if (!digitalRead(pARM))
+      CPacket.Throttle = 1000 - constrain(map(analogRead(pTHROTTLE),30,990,0,1023),0,1000);
+    else
+      CPacket.Throttle = 0;
+      
     //send the control packet to the KSPSerialIO plugin
     KSPBoardSendData(details(CPacket)); 
   }
