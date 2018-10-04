@@ -239,12 +239,12 @@ void define_vessel_data_display()
   {
     String strAlt = "Alt:  ";
     strAlt += String(VData.Alt, 0);
-    strAlt += " m/s";
+    strAlt += " m";
     strAlt.toCharArray(line1, 17);
     
     String strRAlt = "RAlt: ";
     strRAlt += String(VData.RAlt, 0);
-    strRAlt += " m/s";
+    strRAlt += " m";
     strRAlt.toCharArray(line2,17);
     break;
   }
